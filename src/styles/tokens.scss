@@ -1,0 +1,38 @@
+// Design Tokens - Professional Minimalism
+// Based on UX Design Specification
+
+// Typography
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+$font-size-base: 16px;
+$font-size-small: 14px;
+$font-size-large: 18px;
+$line-height-base: 1.5;
+
+// Spacing (8px grid system)
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-xxl: 48px;
+
+// Colors (Professional Minimalism)
+$color-background: #ffffff;
+$color-surface: #f8f9fa;
+$color-text-primary: #1a1a1a;
+$color-text-secondary: #6c757d;
+$color-border: #dee2e6;
+$color-accent: #0066cc;         // Chart line, focus states
+$color-accent-hover: #0052a3;
+
+// Shadows (Subtle depth)
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+// Border radius
+$radius-sm: 4px;
+$radius-md: 6px;
+
+// Transitions
+$transition-fast: 150ms ease;
+$transition-base: 250ms ease;

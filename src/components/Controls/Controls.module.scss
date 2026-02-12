@@ -1,0 +1,60 @@
+@import '../../styles/tokens.scss';
+
+.controls {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition-fast;
+  border: 1px solid transparent;
+
+  &:focus-visible {
+    outline: 2px solid $color-accent;
+    outline-offset: 2px;
+  }
+
+  .icon {
+    font-size: 14px;
+  }
+}
+
+.primary {
+  background: $color-accent;
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: $color-accent-hover;
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.secondary {
+  background: $color-surface;
+  color: $color-text-primary;
+  border-color: $color-border;
+
+  &:hover:not(:disabled) {
+    background: darken($color-surface, 3%);
+    border-color: darken($color-border, 10%);
+  }
+
+  &:active:not(:disabled) {
+    background: darken($color-surface, 5%);
+  }
+}

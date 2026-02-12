@@ -1,0 +1,134 @@
+@import './styles/tokens.scss';
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  background: $color-background;
+}
+
+.sidebar {
+  width: 320px;
+  padding: $spacing-xl;
+  background: $color-surface;
+  border-right: 1px solid $color-border;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  overflow-y: auto;
+}
+
+.header {
+  h1 {
+    font-size: $font-size-large;
+    font-weight: 600;
+    margin: 0 0 $spacing-xs 0;
+    color: $color-text-primary;
+  }
+
+  p {
+    font-size: $font-size-small;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+}
+
+.parameters {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  h2 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    margin: 0 0 $spacing-sm 0;
+    color: $color-text-primary;
+  }
+}
+
+.metrics {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $color-background;
+  border-radius: $radius-md;
+  border: 1px solid $color-border;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-size-small;
+
+  .metricLabel {
+    color: $color-text-secondary;
+  }
+
+  .metricValue {
+    font-weight: 600;
+    color: $color-text-primary;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.warning {
+  padding: $spacing-sm;
+  background: #fff3cd;
+  color: #856404;
+  border-radius: $radius-sm;
+  font-size: $font-size-small;
+  text-align: center;
+  font-weight: 600;
+
+  .warningDetail {
+    margin-top: $spacing-xs;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+}
+
+.metrics {
+  h3 {
+    font-size: $font-size-small;
+    font-weight: 600;
+    margin: 0 0 $spacing-sm 0;
+    color: $color-text-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.main {
+  flex: 1;
+  padding: $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; // Prevent flex item from overflowing
+}
+
+// Tablet breakpoint
+@media (max-width: 1024px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid $color-border;
+  }
+}
+
+// Mobile breakpoint (basic support)
+@media (max-width: 768px) {
+  .sidebar {
+    padding: $spacing-md;
+    gap: $spacing-md;
+  }
+
+  .main {
+    padding: $spacing-md;
+  }
+}
