@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Slider } from './components/Slider/Slider';
 import { Chart } from './components/Chart/Chart';
 import { Controls } from './components/Controls/Controls';

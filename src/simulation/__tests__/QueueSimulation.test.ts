@@ -7,7 +7,7 @@
  * 3. Handles edge cases properly
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { QueueSimulation } from '../QueueSimulation';
 import { MMCQueueingModel } from '../../models/QueueingModel';
 

@@ -146,7 +146,7 @@ describe('MMCQueueingModel', () => {
     });
   });
 
-  describe('Little's Law Verification', () => {
+  describe('Littles Law Verification', () => {
     /**
      * Little's Law states: L = λ × W and Lq = λ × Wq
      * This fundamental law must hold for any stable queueing system

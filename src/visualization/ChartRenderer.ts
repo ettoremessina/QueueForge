@@ -141,7 +141,7 @@ export class ChartRenderer {
   /**
    * Draw background grid lines
    */
-  private drawGrid(chartArea: any, scales: any): void {
+  private drawGrid(chartArea: any, _scales: any): void {
     this.ctx.strokeStyle = this.config.colors.grid;
     this.ctx.lineWidth = 1;
 
@@ -174,7 +174,7 @@ export class ChartRenderer {
   /**
    * Draw data line
    */
-  private drawDataLine(data: DataPoint[], chartArea: any, scales: any): void {
+  private drawDataLine(data: DataPoint[], _chartArea: any, scales: any): void {
     if (data.length < 2) return;
 
     this.ctx.strokeStyle = this.config.colors.line;
