@@ -1,14 +1,15 @@
-# QueueForge — M/M/c Queue Simulation
+# QueueForge — M/M/c & M/M/c/K Queue Simulation
 
-An interactive M/M/c queueing theory simulation built with React, TypeScript, and Vite. This educational tool demonstrates how mathematical models can solve real-world problems by simulating a call center with adjustable parameters.
+An interactive queueing theory simulation built with React, TypeScript, and Vite. Supports two classic Kendall-notation models — **M/M/c** (infinite capacity) and **M/M/c/K** (finite capacity) — selectable via a dropdown. This educational tool demonstrates how mathematical models can solve real-world problems by simulating a call center with adjustable parameters.
 
 ## Features
 
-- **Real-time M/M/c Queue Simulation**: Poisson arrivals, exponential service times, multiple servers
-- **Interactive Parameters**: Adjust arrival rate (λ), service rate (μ), number of servers (c), and simulation speed
+- **Two queue models**: Switch between M/M/c (infinite queue) and M/M/c/K (finite capacity with rejection) via a dropdown
+- **Real-time simulation**: Poisson arrivals, exponential service times, multiple servers
+- **Interactive Parameters**: Adjust arrival rate (λ), service rate (μ), number of servers (c), simulation speed — and max capacity (K) when using M/M/c/K
 - **Live Visualization**: Real-time chart showing queue length over time
 - **Educational Tooltips**: Hover over parameter labels for explanations
-- **System Metrics**: Current queue length, utilization, theoretical averages
+- **System Metrics**: Current queue length, utilization, theoretical averages, and rejection probability (M/M/c/K)
 - **Professional UI**: Clean, minimal design inspired by Linear, Stripe, and GitHub
 
 ## Quick Start
@@ -48,12 +49,22 @@ npm run preview
 3. **Observe Results**: Watch the queue length change in real-time on the chart
 4. **Reset**: Click "Reset" to clear the simulation and start fresh
 
+### Selecting a Queue Model
+
+Use the **Queue Model** dropdown at the top of the parameters panel:
+
+| Model | Description |
+|-------|-------------|
+| **M/M/c** | Infinite waiting room — all arrivals join the queue regardless of length |
+| **M/M/c/K** | Finite capacity — arrivals are rejected when the system holds K customers (queue + servers) |
+
 ### Understanding the Parameters
 
 - **Arrival Rate (λ)**: Average number of customers arriving per minute
 - **Service Rate (μ)**: Average number of customers one server can handle per minute
 - **Number of Servers (c)**: Total servers available to handle customers
-- **Utilization**: λ / (c × μ) - Should be < 100% for stable system
+- **Max Capacity (K)** *(M/M/c/K only)*: Maximum customers allowed in the system (queue + in service); arrivals beyond K are rejected
+- **Utilization**: λ / (c × μ) - Should be < 100% for a stable M/M/c system (M/M/c/K is always stable due to finite K)
 
 ## Tech Stack
 
@@ -69,9 +80,10 @@ npm run preview
 src/
 ├── models/              # Mathematical queueing theory models
 │   ├── QueueingModel.ts       # M/M/c theoretical calculations (Erlang C)
+│   ├── MMCKQueueingModel.ts   # M/M/c/K theoretical calculations (finite capacity, Erlang B)
 │   └── __tests__/             # Mathematical verification tests
 ├── simulation/          # Discrete event simulation engine
-│   ├── QueueSimulation.ts     # Time-stepped simulation logic
+│   ├── QueueSimulation.ts     # Time-stepped simulation logic (supports both M/M/c and M/M/c/K via maxCapacity)
 │   └── __tests__/             # Simulation convergence tests
 ├── visualization/       # Chart rendering utilities
 │   └── ChartRenderer.ts       # Canvas-based charting
@@ -91,7 +103,7 @@ src/
 
 The codebase follows **clean separation of concerns**:
 
-1. **Models Layer** (`models/`): Pure mathematical functions implementing M/M/c queueing theory formulas (Erlang C, Little's Law, etc.)
+1. **Models Layer** (`models/`): Pure mathematical functions implementing M/M/c (Erlang C) and M/M/c/K (Erlang B / finite-capacity) queueing theory formulas
 2. **Simulation Layer** (`simulation/`): Discrete event simulation engine that generates empirical data matching theoretical predictions
 3. **Visualization Layer** (`visualization/`): Canvas-based rendering optimized for real-time updates
 4. **UI Layer** (`components/`, `App.tsx`): React components orchestrating user interaction
@@ -104,7 +116,7 @@ This separation makes the code:
 
 ## Mathematical Verification
 
-This simulation implements the **M/M/c queueing model** with mathematically verified accuracy.
+This simulation implements two queueing models with mathematically verified accuracy.
 
 ### Running Tests
 
@@ -125,8 +137,9 @@ npm run test:ui
 - ✅ **M/M/1 known results**: Matches textbook examples exactly
 - ✅ **M/M/c Erlang C formula**: Verified against published tables
 - ✅ **Little's Law**: L = λ×W holds for all configurations
-- ✅ **Stability detection**: Correctly identifies ρ ≥ 1 (unstable systems)
-- ✅ **Simulation convergence**: Empirical results match theoretical predictions
+- ✅ **Stability detection**: Correctly identifies ρ ≥ 1 (unstable M/M/c systems)
+- ✅ **M/M/c/K finite capacity**: Erlang B blocking probability verified
+- ✅ **Simulation convergence**: Higher utilisation produces longer queues
 
 ### Example: Verifying M/M/1 Queue
 
@@ -140,6 +153,15 @@ Configuration: λ=6/min, μ=10/min, c=1
 **Simulation (after ~10 minutes runtime):**
 - Observed values converge to theoretical within 10-15%
 - This validates both the math and simulation implementation
+
+### Example: Verifying M/M/1/5 Queue (M/M/c/K with c=1, K=5)
+
+Configuration: λ=10/min, μ=8/min, c=1, K=5
+
+**Theoretical (from Erlang B formulas):**
+- System is always stable (finite K absorbs any λ)
+- Rejection probability (Pb) indicates the fraction of arrivals turned away
+- Effective throughput = λ × (1 − Pb)
 
 📖 **Full mathematical derivations**: See [docs/MATHEMATICAL_VERIFICATION.md](docs/MATHEMATICAL_VERIFICATION.md)
 
