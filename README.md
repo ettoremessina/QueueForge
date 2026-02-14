@@ -199,4 +199,4 @@ Open Source - MIT License
 
 ## Author
 
-Ettore - Portfolio showcase demonstrating queueing theory simulation
+Ettore Messina - Portfolio showcase demonstrating queueing theory simulation
