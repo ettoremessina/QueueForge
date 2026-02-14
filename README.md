@@ -51,12 +51,20 @@ npm run preview
 
 ### Selecting a Queue Model
 
-Use the **Queue Model** dropdown at the top of the parameters panel:
+Use the **Queue Model** dropdown at the top of the parameters panel, or set it directly via the `model` URL query parameter:
 
-| Model | Description |
-|-------|-------------|
-| **M/M/c** | Infinite waiting room — all arrivals join the queue regardless of length |
-| **M/M/c/K** | Finite capacity — arrivals are rejected when the system holds K customers (queue + servers) |
+| Model | Dropdown label | URL parameter |
+|-------|---------------|---------------|
+| **M/M/c** | M/M/c — Infinite capacity | *(default, no parameter needed)* |
+| **M/M/c/K** | M/M/c/K — Finite capacity | `?model=mmck` |
+
+**Examples:**
+```
+https://example.com/queueforge/           → opens with M/M/c (default)
+https://example.com/queueforge/?model=mmck → opens with M/M/c/K pre-selected
+```
+
+The parameter is case-insensitive (`?model=MMCK` and `?model=mmck` both work). Invalid values silently fall back to M/M/c. Switching the dropdown updates the URL automatically so the link stays shareable.
 
 ### Understanding the Parameters
 

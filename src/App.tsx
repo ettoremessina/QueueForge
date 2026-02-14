@@ -14,6 +14,25 @@ interface DataPoint {
 
 type QueueModelType = 'MMC' | 'MMCK';
 
+const VALID_MODELS: QueueModelType[] = ['MMC', 'MMCK'];
+
+function readModelFromUrl(): QueueModelType {
+  const param = new URLSearchParams(window.location.search).get('model');
+  const upper = param?.toUpperCase() as QueueModelType;
+  return VALID_MODELS.includes(upper) ? upper : 'MMC';
+}
+
+function writeModelToUrl(model: QueueModelType): void {
+  const params = new URLSearchParams(window.location.search);
+  if (model === 'MMC') {
+    params.delete('model');
+  } else {
+    params.set('model', model.toLowerCase());
+  }
+  const query = params.toString();
+  history.replaceState(null, '', query ? `?${query}` : window.location.pathname);
+}
+
 /**
  * Main Application Component
  *
@@ -30,8 +49,8 @@ function App() {
   const [numServers, setNumServers] = useState(2); // c (number of servers)
   const [simulationSpeed, setSimulationSpeed] = useState(1); // Speed multiplier
 
-  // Model selection
-  const [selectedModel, setSelectedModel] = useState<QueueModelType>('MMC');
+  // Model selection — initialised from ?model= querystring (default: MMC)
+  const [selectedModel, setSelectedModel] = useState<QueueModelType>(readModelFromUrl);
   const [maxCapacity, setMaxCapacity] = useState(10); // K (max customers in system)
 
   // Simulation state
@@ -127,6 +146,7 @@ function App() {
 
   const handleModelChange = (model: QueueModelType) => {
     setSelectedModel(model);
+    writeModelToUrl(model);
     setIsRunning(false);
     simulationRef.current.reset();
     setData([{ time: 0, queueLength: 0 }]);
