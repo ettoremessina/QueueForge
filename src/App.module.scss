@@ -121,6 +121,33 @@
   }
 }
 
+.modelSelectWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.modelSelectLabel {
+  font-size: $font-size-small;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.modelSelect {
+  width: 100%;
+  padding: $spacing-xs $spacing-sm;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-background;
+  font-size: $font-size-small;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $color-text-primary;
+  }
+}
+
 // Mobile breakpoint (basic support)
 @media (max-width: 768px) {
   .sidebar {

@@ -3,6 +3,7 @@ import { Slider } from './components/Slider/Slider';
 import { Chart } from './components/Chart/Chart';
 import { Controls } from './components/Controls/Controls';
 import { MMCQueueingModel, QueueingParameters } from './models/QueueingModel';
+import { MMCKQueueingModel, MMCKQueueingParameters, MMCKQueueMetrics } from './models/MMCKQueueingModel';
 import { QueueSimulation } from './simulation/QueueSimulation';
 import styles from './App.module.scss';
 
@@ -11,11 +12,13 @@ interface DataPoint {
   queueLength: number;
 }
 
+type QueueModelType = 'MMC' | 'MMCK';
+
 /**
  * Main Application Component
  *
- * This component orchestrates the M/M/c queueing simulation by:
- * 1. Managing user-adjustable parameters (λ, μ, c, speed)
+ * This component orchestrates the M/M/c / M/M/c/K queueing simulation by:
+ * 1. Managing user-adjustable parameters (λ, μ, c, K, speed)
  * 2. Running the discrete event simulation
  * 3. Displaying theoretical vs. simulated metrics
  * 4. Rendering real-time visualization
@@ -26,6 +29,10 @@ function App() {
   const [serviceRate, setServiceRate] = useState(12); // μ (customers per minute per server)
   const [numServers, setNumServers] = useState(2); // c (number of servers)
   const [simulationSpeed, setSimulationSpeed] = useState(1); // Speed multiplier
+
+  // Model selection
+  const [selectedModel, setSelectedModel] = useState<QueueModelType>('MMC');
+  const [maxCapacity, setMaxCapacity] = useState(10); // K (max customers in system)
 
   // Simulation state
   const [isRunning, setIsRunning] = useState(false);
@@ -41,34 +48,46 @@ function App() {
     })
   );
 
+  // Auto-bump K if numServers increases past maxCapacity-1
+  useEffect(() => {
+    if (maxCapacity <= numServers) {
+      setMaxCapacity(numServers + 1);
+    }
+  }, [numServers, maxCapacity]);
+
   // Update simulation config when parameters change
   useEffect(() => {
     simulationRef.current.updateConfig({
       arrivalRate,
       serviceRate,
       numServers,
+      maxCapacity: selectedModel === 'MMCK' ? maxCapacity : undefined,
     });
-  }, [arrivalRate, serviceRate, numServers]);
+  }, [arrivalRate, serviceRate, numServers, selectedModel, maxCapacity]);
 
-  // Calculate theoretical metrics using M/M/c queueing model
+  // Calculate theoretical metrics using the active model
   const theoreticalMetrics = useCallback(() => {
+    if (selectedModel === 'MMCK') {
+      const params: MMCKQueueingParameters = {
+        arrivalRate,
+        serviceRate,
+        numServers,
+        maxCapacity,
+      };
+      return MMCKQueueingModel.calculateMetrics(params);
+    }
     const params: QueueingParameters = {
       arrivalRate,
       serviceRate,
       numServers,
     };
     return MMCQueueingModel.calculateMetrics(params);
-  }, [arrivalRate, serviceRate, numServers]);
+  }, [arrivalRate, serviceRate, numServers, selectedModel, maxCapacity]);
 
   const metrics = theoreticalMetrics();
 
   /**
    * Simulation loop - runs at ~100ms intervals
-   *
-   * Each tick:
-   * 1. Advances simulation by timeStep * simulationSpeed
-   * 2. Records queue length for visualization
-   * 3. Throttles data points to avoid chart performance issues
    */
   useEffect(() => {
     if (!isRunning) return;
@@ -106,6 +125,13 @@ function App() {
     setData([{ time: 0, queueLength: 0 }]);
   };
 
+  const handleModelChange = (model: QueueModelType) => {
+    setSelectedModel(model);
+    setIsRunning(false);
+    simulationRef.current.reset();
+    setData([{ time: 0, queueLength: 0 }]);
+  };
+
   const currentState = simulationRef.current.getState();
 
   return (
@@ -118,6 +144,22 @@ function App() {
 
         <div className={styles.parameters}>
           <h2>Parameters</h2>
+
+          <div className={styles.modelSelectWrapper}>
+            <label className={styles.modelSelectLabel} htmlFor="model-select">
+              Queue Model
+            </label>
+            <select
+              id="model-select"
+              className={styles.modelSelect}
+              value={selectedModel}
+              onChange={(e) => handleModelChange(e.target.value as QueueModelType)}
+            >
+              <option value="MMC">M/M/c — Infinite capacity</option>
+              <option value="MMCK">M/M/c/K — Finite capacity</option>
+            </select>
+          </div>
+
           <Slider
             label="Arrival Rate (λ)"
             value={arrivalRate}
@@ -147,6 +189,17 @@ function App() {
             tooltip="Number of servers available to handle customers (M/M/c model)"
             onChange={setNumServers}
           />
+          {selectedModel === 'MMCK' && (
+            <Slider
+              label="Max Capacity (K)"
+              value={maxCapacity}
+              min={numServers + 1}
+              max={50}
+              step={1}
+              tooltip="Maximum total customers in system (queue + servers). Arrivals beyond K are rejected."
+              onChange={setMaxCapacity}
+            />
+          )}
           <Slider
             label="Simulation Speed"
             value={simulationSpeed}
@@ -192,7 +245,7 @@ function App() {
         </div>
 
         <div className={styles.metrics}>
-          <h3>Theoretical (M/M/c)</h3>
+          <h3>Theoretical ({selectedModel === 'MMCK' ? 'M/M/c/K' : 'M/M/c'})</h3>
           {metrics.isStable ? (
             <>
               <div className={styles.metric}>
@@ -219,6 +272,14 @@ function App() {
                   {metrics.averageSystemTime.toFixed(2)} min
                 </span>
               </div>
+              {'rejectionProbability' in metrics && (
+                <div className={styles.metric}>
+                  <span className={styles.metricLabel}>Rejection Prob. (Pb)</span>
+                  <span className={styles.metricValue}>
+                    {((metrics as MMCKQueueMetrics).rejectionProbability * 100).toFixed(2)}%
+                  </span>
+                </div>
+              )}
             </>
           ) : (
             <div className={styles.warning}>

@@ -27,6 +27,9 @@ export interface SimulationState {
   /** Total customers that have been served */
   totalServed: number;
 
+  /** Total customers rejected because the system was at capacity */
+  totalRejected: number;
+
   /** Sum of all queue lengths observed (for calculating average) */
   cumulativeQueueLength: number;
 
@@ -46,6 +49,9 @@ export interface SimulationConfig {
 
   /** Time step size (seconds) for simulation updates */
   timeStep: number;
+
+  /** K — Maximum customers in system. Undefined = infinite (M/M/c). */
+  maxCapacity?: number;
 }
 
 /**
@@ -76,6 +82,7 @@ export class QueueSimulation {
       serversBusy: 0,
       totalArrivals: 0,
       totalServed: 0,
+      totalRejected: 0,
       cumulativeQueueLength: 0,
       timeSteps: 0,
     };
@@ -125,6 +132,14 @@ export class QueueSimulation {
   }
 
   /**
+   * Get the fraction of arriving customers that were rejected due to full capacity
+   */
+  getRejectionRate(): number {
+    if (this.state.totalArrivals === 0) return 0;
+    return this.state.totalRejected / this.state.totalArrivals;
+  }
+
+  /**
    * Advance simulation by one time step
    *
    * This is the core simulation loop that:
@@ -134,7 +149,7 @@ export class QueueSimulation {
    * 4. Collects statistics
    */
   step(): void {
-    const { arrivalRate, serviceRate, numServers, timeStep } = this.config;
+    const { arrivalRate, serviceRate, numServers, timeStep, maxCapacity } = this.config;
 
     // Convert rates from per-minute to per-second
     const arrivalRatePerSec = arrivalRate / 60;
@@ -148,7 +163,11 @@ export class QueueSimulation {
 
     if (arrivals > 0) {
       this.state.totalArrivals += arrivals;
-      this.state.queueLength += arrivals;
+      if (maxCapacity !== undefined && this.state.queueLength + this.state.serversBusy >= maxCapacity) {
+        this.state.totalRejected += arrivals;
+      } else {
+        this.state.queueLength += arrivals;
+      }
     }
 
     // 2. Simulate service completions (Exponential service times)
